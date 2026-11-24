@@ -25,8 +25,6 @@ Optional: add a custom domain such as `stats.heytulli.ai` under Settings > Domai
 | Number | Customer.io segment | Env var to override |
 | --- | --- | --- |
 | 15 | Waitlist signup | `SEG_WAITLIST` |
-| 18 | Waitlist: main site | `SEG_MAIN` |
-| 17 | Waitlist: CES | `SEG_CES` |
 | 1 | All Users | `SEG_ALL` |
 | 3 | Paying Customers | `SEG_PAYING` |
 

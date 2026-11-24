@@ -6,8 +6,6 @@ const BASE = process.env.CIO_REGION === "eu" ? "https://api-eu.customer.io" : "h
 const FORM_LIVE = "2026-11-14"; // waitlist form went live
 const SEG = {
   waitlist: Number(process.env.SEG_WAITLIST || 15),
-  main: Number(process.env.SEG_MAIN || 18),
-  ces: Number(process.env.SEG_CES || 17),
   all: Number(process.env.SEG_ALL || 1),
   paying: Number(process.env.SEG_PAYING || 3),
 };
@@ -121,14 +119,14 @@ export default async function handler(req, res) {
     return;
   }
   try {
-    const [waitlist, main, ces, all, paying] = await Promise.all([
-      count(SEG.waitlist), count(SEG.main), count(SEG.ces), count(SEG.all), count(SEG.paying),
+    const [waitlist, all, paying] = await Promise.all([
+      count(SEG.waitlist), count(SEG.all), count(SEG.paying),
     ]);
     const { days, debug } = await signupsByDay();
     // Shared cache: page loads within a minute reuse one Customer.io pull.
     // The Refresh button adds ?t=... and skips it.
     res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
-    res.status(200).json({ at: new Date().toISOString(), waitlist, main, ces, all, paying, days, debug });
+    res.status(200).json({ at: new Date().toISOString(), waitlist, all, paying, days, debug });
   } catch (e) {
     res.status(502).json({ error: String(e.message || e) });
   }

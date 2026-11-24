@@ -145,13 +145,10 @@ button:disabled{opacity:.6;cursor:default}
   </section>
 
   <section data-tab="acquisition">
-    <div class="grid2">
-      <div class="card"><h2>Signups by landing page</h2><p class="sub">Main site vs. the CES page</p><ul class="rows" id="pages"></ul></div>
-      <div class="card todo-card"><h2>Signups by channel</h2><p class="sub">Not tracked yet</p><ul class="chk">
+    <div class="card todo-card"><h2>Signups by channel</h2><p class="sub">Not tracked yet</p><ul class="chk">
         <li><span class="dot todo"></span><span><b>UTM tags on every shared link</b><small>Instagram, TikTok, YouTube, influencer codes, press, email</small></span></li>
         <li><span class="dot todo"></span><span><b>Hidden form fields</b><small>source, utm_campaign and landing_page saved on each signup</small></span></li>
-        <li><span class="dot todo"></span><span><b>CES QR placement tags</b><small>Already in the QR links; needs the hidden fields to land in Customer.io</small></span></li></ul></div>
-    </div>
+      </ul></div>
   </section>
 
   <section data-tab="retention">
@@ -177,9 +174,8 @@ button:disabled{opacity:.6;cursor:default}
 <script>
 {
 // Numbers from Customer.io on Nov 24, 2026, shown only until the live request returns.
-const SEED={at:"2026-11-24T14:10:00Z",waitlist:12,main:12,ces:0,all:12,paying:0,days:{"2026-11-20":1,"2026-11-21":7,"2026-11-23":4}};
+const SEED={at:"2026-11-24T14:10:00Z",waitlist:12,all:12,paying:0,days:{"2026-11-20":1,"2026-11-21":7,"2026-11-23":4}};
 const FORM_LIVE="2026-11-14";
-const SEG={waitlist:15,ces:17,main:18,all:1,paying:3};
 const ENV="239998";
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n).toLocaleString("en-US");
@@ -202,11 +198,12 @@ const render=()=>{
   $("stamp").textContent=`${source==="live"?"Updated":"Last pulled"} ${when.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZone:"America/New_York"})} ET`;
   $("liveTag").classList.toggle("on",source==="live");
   $("liveWord").textContent=source==="live"?"Live from Customer.io":"Snapshot";
+  const best=days.map(d=>({d,n:Number(s.days[d])||0})).filter(r=>r.n>0).sort((a,b)=>b.n-a.n)[0];
   const kp=[
     ["Waitlist",fmt(s.waitlist),"All form signups",1],
     ["New signups, 7 days",fmt(new7),prev7?`${new7>=prev7?"+":""}${Math.round((new7-prev7)/prev7*100)}% vs. prior 7 days`:"First full week",1,new7>prev7],
-    ["Main site",fmt(s.main),"heytulli.ai form",1],
-    ["CES page",fmt(s.ces),"heytulli.ai/ces form",1],
+    ["Daily average, 7 days",(new7/7).toFixed(1),"Signups per day",1],
+    ["Best day",best?fmt(best.n):"0",best?short(best.d):"No signups yet",1],
     ["Invited","—","Needs alpha_invite_sent",0],
     ["Activated","—","Needs app events",0],
     ["Weekly active users","—","Needs app events",0],
@@ -220,8 +217,6 @@ const render=()=>{
   $("funHead").textContent=`${fmt(s.waitlist)} signed up; the next five stages aren't tracked yet`;
   const ev=[["alpha_invite_sent","When an invite email goes out"],["first_login","With platform: iOS or web"],["calendar_connected","Google or Apple"],["first_item_created","First event or task"],["caregiver_invited","Household grows"],["assistant_request","completed or stopped"],["subscription_started","App Store or Stripe"]];
   $("events").innerHTML=ev.map(e=>`<li><span class="dot todo"></span><span><b>${e[0]}</b><small>${e[1]}</small></span></li>`).join("");
-  const pm=Math.max(1,s.main,s.ces);
-  $("pages").innerHTML=[["Main site",s.main],["CES page",s.ces]].map(p=>`<li class="row"><b>${p[0]}</b><span class="v">${fmt(p[1])}</span><div class="bar"><i class="${p[0]==="CES page"?"q":""}" style="width:${p[1]/pm*100}%"></i></div></li>`).join("")+`<li class="note">The CES page fills in once its QR codes go live for Jan 6–9.</li>`;
   $("paying").innerHTML=`<li class="row"><b>Paying users</b><span class="v">${fmt(s.paying)}</span><div class="bar"></div><span class="drop">From the Paying Customers segment in Customer.io</span></li>`;
   const src=[["Customer.io waitlist",source==="live"?"Connected, live":"Connected",1],["App backend events","Not sending to Customer.io yet",0],["Signup source fields and UTMs","Not on the form yet",0],["Site analytics","Not connected",0],["App Store Connect and Stripe","Waiting on billing",2]];
   $("src").innerHTML=src.map(r=>`<li><span class="dot${r[2]===1?" ok":r[2]===0?" todo":""}"></span><span><b>${r[0]}</b><small>${r[1]}</small></span></li>`).join("");
