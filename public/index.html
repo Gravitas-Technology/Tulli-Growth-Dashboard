@@ -239,7 +239,7 @@ const drawSig=()=>{
   rows.forEach((r,i)=>{const x=L+i*cw+(cw-bw)/2,cx=x+bw/2,top=y(r.n),hot=r===best&&r.n>0;
     if(r.n>0)out+=`<rect x="${x}" y="${top}" width="${bw}" height="${H-B-top}" rx="3" fill="${hot?"var(--blue)":"var(--quiet)"}"><title>${short(r.d)}: ${r.n} signups</title></rect>`;
     if(r.n>0&&(hot||cw>22))out+=`<text x="${cx}" y="${top-6}" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">${r.n}</text>`;
-    if(i%step===0||i===rows.length-1)out+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="12" fill="var(--muted)">${short(r.d)}</text>`;});
+    if((i%step===0&&rows.length-1-i>=step/2)||i===rows.length-1)out+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="12" fill="var(--muted)">${short(r.d)}</text>`;});
   sigEl.innerHTML=`<svg role="img" aria-label="Waitlist signups by day">${out}</svg>`;
 };
 const ro=new ResizeObserver(drawSig);ro.observe(sigEl);
