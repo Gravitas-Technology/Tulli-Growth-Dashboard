@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tulli Growth Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+/* VOICE work: a team dashboard shown in Teams and on phones, calm and exact
+   IDEA the Tulli app itself: same navy, tint panels, serif headings, star mark
+   PICTURE daily waitlist signups, then the funnel with what is and isn't tracked
+   COLOUR white or Deep Navy ground, Tulli Navy ink, Tulli Blue accent, Tint panels
+   TYPE Newsreader headings + Albert Sans text, Pacifico only for the wordmark
+   LAYOUT phone: one column, 2-up tiles, wrapping tab chips; 760+: 4-up tiles, side-by-side panels */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#0A2143);
+--panel:light-dark(#EAF3FF,#102B55);
+--card:light-dark(#ffffff,#0F284F);
+--ink:light-dark(#0D3773,#EAF3FF);
+--text:light-dark(#1d2b44,#d7e4f5);
+--muted:light-dark(#5a6b86,#9fb3cf);
+--line:light-dark(#d5e2f2,#24406e);
+--blue:light-dark(#1C7AB1,#5CC4F2);
+--star:light-dark(#3FB0E8,#5CC4F2);
+--quiet:light-dark(#b9d3ec,#2f5287);
+--good:light-dark(#1f7a4d,#6fd3a0);
+--warn:light-dark(#9a5b00,#f3c46b)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.5 "Albert Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:Newsreader,Georgia,serif;color:var(--ink);font-weight:600;letter-spacing:-.01em;margin:0}
+h1{font-size:clamp(28px,6vw,40px);line-height:1.08;text-wrap:balance}
+h2{font-size:22px;line-height:1.2}
+h3{font-size:18px;line-height:1.25}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+header{padding:14px 0 6px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mark{display:flex;align-items:center;gap:6px;text-decoration:none}
+.mark b{font:400 28px/1 Pacifico,cursive;color:var(--ink)}
+.mark svg{width:18px;height:18px;margin-top:-14px}
+.stamp{font-size:13px;color:var(--muted);text-align:right}
+.live{display:inline-flex;align-items:center;gap:6px}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--quiet)}
+.live.on i{background:var(--good)}
+.lead{margin:14px 0 4px}
+.lead p{margin:8px 0 0;color:var(--muted);max-width:62ch}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;padding-top:10px;padding-bottom:10px}
+.tabs a{flex:none;display:inline-flex;align-items:center;padding:0 16px;min-height:44px;border-radius:999px;color:var(--ink);text-decoration:none;font-weight:600;font-size:15px;background:var(--panel)}
+.tabs a[aria-current=page]{background:var(--ink);color:var(--bg)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--star);outline-offset:2px}
+main{padding:16px 0 40px}
+section[data-tab]{display:none}
+section[data-tab].on{display:grid;gap:16px}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{background:var(--panel);border-radius:16px;padding:14px}
+.kpi span{display:block;font-size:13px;color:var(--muted)}
+.kpi strong{display:block;font:600 clamp(26px,7vw,34px)/1.1 Newsreader,Georgia,serif;color:var(--ink);margin:4px 0 2px;white-space:nowrap}
+.kpi em{font-style:normal;font-size:13px;color:var(--muted)}
+.kpi.off{background:transparent;border:1px dashed var(--line)}
+.kpi.off strong{color:var(--quiet)}
+.up{color:var(--good)!important}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.card>p.sub{margin:4px 0 12px;color:var(--muted);font-size:14px}
+.grid2{display:grid;gap:16px}
+.fig{position:relative;height:260px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+svg text{font-family:"Albert Sans",sans-serif;paint-order:stroke;stroke:var(--card);stroke-width:4px}
+.rows{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:baseline}
+.row b{font-weight:600;color:var(--ink);font-size:15px}
+.row .v{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink);white-space:nowrap}
+.row .v.off{color:var(--muted);font-weight:500}
+.bar{grid-column:1/-1;height:12px;background:var(--panel);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blue);border-radius:6px}
+.bar i.q{background:var(--quiet)}
+.drop{grid-column:1/-1;font-size:13px;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);margin:10px 0 0}
+.chk{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:10px}
+.chk li{display:flex;gap:10px;align-items:flex-start}
+.dot{flex:none;width:10px;height:10px;border-radius:50%;margin-top:7px;background:var(--quiet)}
+.dot.ok{background:var(--good)}
+.dot.todo{background:var(--warn)}
+.chk b{color:var(--ink)}
+.chk small{display:block;color:var(--muted);font-size:13px}
+.todo-card{border-style:dashed}
+footer{border-top:1px solid var(--line);padding:20px 0 32px;font-size:14px;color:var(--muted)}
+button{font:600 15px "Albert Sans",sans-serif;min-height:44px;padding:0 18px;border-radius:999px;border:0;background:var(--ink);color:var(--bg);cursor:pointer}
+button:disabled{opacity:.6;cursor:default}
+.refresh-row{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+.refresh-row .note{margin:0}
+#refresh{display:inline-flex;align-items:center;gap:8px;background:var(--panel);color:var(--ink)}
+#refresh svg{width:18px;height:18px}
+#refresh.spin svg{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#pull{position:fixed;left:50%;top:0;z-index:20;transform:translate(-50%,-60px);background:var(--ink);color:var(--bg);font-size:14px;font-weight:600;padding:8px 16px;border-radius:999px;transition:transform .15s ease;pointer-events:none}
+#gate{position:fixed;inset:0;z-index:30;background:color-mix(in srgb,var(--bg) 92%,transparent);display:grid;place-items:center;padding:20px}
+#gate[hidden]{display:none}
+#gate form{width:min(380px,100%);display:grid;gap:10px}
+#passIn{font:16px "Albert Sans",sans-serif;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+@media(min-width:760px){
+.wrap{padding-left:32px;padding-right:32px}
+.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.fig{height:320px}
+.card{padding:22px}}
+@media(min-width:1100px){.grid2.wide{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}}
+@media(prefers-reduced-motion:no-preference){.bar i{transition:width .5s ease}}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="top">
+    <a class="mark" href="#overview" aria-label="Tulli growth dashboard home"><b>Tulli</b><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 0C11 6 14 9 20 10 14 11 11 14 10 20 9 14 6 11 0 10 6 9 9 6 10 0Z" fill="var(--star)"/></svg></a>
+    <div class="stamp"><span class="live" id="liveTag"><i></i><span id="liveWord">Snapshot</span></span><br><span id="stamp">Loading…</span></div>
+  </div>
+  <div class="refresh-row"><button id="refresh" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3v4h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="refreshWord">Refresh</span></button><span class="note" id="pullHint">Or pull down from the top</span></div>
+  <div class="lead">
+    <h1 id="headline">Waitlist</h1>
+    <p id="leadText">Live from Customer.io. Tiles with a dashed outline need app events or source tracking before they can fill in.</p>
+  </div>
+</header>
+
+<nav aria-label="Dashboard sections"><div class="wrap tabs" id="tabs">
+  <a href="#overview">Overview</a><a href="#funnel">Funnel</a><a href="#acquisition">Acquisition</a><a href="#retention">Retention</a><a href="#revenue">Revenue</a>
+</div></nav>
+
+<main class="wrap">
+  <section data-tab="overview">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid2 wide">
+      <div class="card"><h2>Signups by day</h2><p class="sub" id="sigSub"></p><div class="fig" id="sig"></div></div>
+      <div class="card"><h2>Funnel to date</h2><p class="sub">Only the first stage is tracked so far</p><ul class="rows" id="funMini"></ul></div>
+    </div>
+  </section>
+
+  <section data-tab="funnel">
+    <div class="card"><h2 id="funHead">Funnel</h2><p class="sub">Each stage as a share of signups. Stages after signup appear once the app sends its events to Customer.io.</p><ul class="rows" id="funFull"></ul></div>
+    <div class="card todo-card"><h3>Events the app needs to send</h3><ul class="chk" id="events"></ul></div>
+  </section>
+
+  <section data-tab="acquisition">
+    <div class="grid2">
+      <div class="card"><h2>Signups by landing page</h2><p class="sub">Main site vs. the CES page</p><ul class="rows" id="pages"></ul></div>
+      <div class="card todo-card"><h2>Signups by channel</h2><p class="sub">Not tracked yet</p><ul class="chk">
+        <li><span class="dot todo"></span><span><b>UTM tags on every shared link</b><small>Instagram, TikTok, YouTube, influencer codes, press, email</small></span></li>
+        <li><span class="dot todo"></span><span><b>Hidden form fields</b><small>source, utm_campaign and landing_page saved on each signup</small></span></li>
+        <li><span class="dot todo"></span><span><b>CES QR placement tags</b><small>Already in the QR links; needs the hidden fields to land in Customer.io</small></span></li></ul></div>
+    </div>
+  </section>
+
+  <section data-tab="retention">
+    <div class="card todo-card"><h2>Retention starts after the alpha invites go out</h2><p class="sub">Weekly cohorts, stickiness and feature use need login and feature events from the app.</p><ul class="chk">
+      <li><span class="dot todo"></span><span><b>first_login and session events</b><small>Week-by-week cohort table and daily ÷ weekly active</small></span></li>
+      <li><span class="dot todo"></span><span><b>Feature events</b><small>Calendar, assistant, carpools, meals, Subscriptions</small></span></li>
+      <li><span class="dot todo"></span><span><b>assistant_request with completed or stopped</b><small>Assistant health and top failed asks</small></span></li></ul></div>
+  </section>
+
+  <section data-tab="revenue">
+    <div class="card"><h2>Revenue starts when billing goes live</h2><p class="sub">Founding Families have free early access. This tab fills in once App Store and Stripe payments are connected.</p><ul class="rows" id="paying"></ul></div>
+    <div class="card"><h3>Data connections</h3><ul class="chk" id="src"></ul></div>
+  </section>
+</main>
+
+<div id="gate" hidden><form id="gateForm" class="card"><h2>Enter the team passcode</h2><p class="sub">Ask Brian if you don't have it.</p><label for="passIn" class="note">Passcode</label><input id="passIn" type="password" autocomplete="current-password" required><button type="submit">View dashboard</button></form></div>
+<footer class="wrap">
+  <div class="foot">
+    <span id="footNote">Loading live numbers from Customer.io…</span>
+  </div>
+</footer>
+
+<script>
+{
+// Numbers from Customer.io on Nov 24, 2026, shown only until the live request returns.
+const SEED={at:"2026-11-24T14:10:00Z",waitlist:12,main:12,ces:0,all:12,paying:0,days:{"2026-11-20":1,"2026-11-21":7,"2026-11-23":4}};
+const FORM_LIVE="2026-11-14";
+const SEG={waitlist:15,ces:17,main:18,all:1,paying:3};
+const ENV="239998";
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n).toLocaleString("en-US");
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const etDay=ms=>new Date(ms-5*3600e3).toISOString().slice(0,10);
+const mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const short=d=>`${mon.at(Number(d.slice(5,7))-1)} ${Number(d.slice(8))}`;
+let snap=SEED,source="snapshot";
+
+const dayRange=()=>{const out=[];let t=Date.parse(FORM_LIVE+"T12:00:00Z");const end=Date.parse(etDay(Date.now())+"T12:00:00Z");while(t<=end&&out.length<120){out.push(new Date(t).toISOString().slice(0,10));t+=864e5;}return out.length>60?out.slice(-60):out;};
+
+const render=()=>{
+  const s=snap,days=dayRange(),today=etDay(Date.now());
+  const wk=days.filter(d=>Date.parse(d)>Date.parse(today)-7*864e5);
+  const new7=wk.reduce((a,d)=>a+(Number(s.days[d])||0),0);
+  const prevWk=days.filter(d=>{const t=Date.parse(d);return t<=Date.parse(today)-7*864e5&&t>Date.parse(today)-14*864e5});
+  const prev7=prevWk.reduce((a,d)=>a+(Number(s.days[d])||0),0);
+  $("headline").textContent=`${fmt(s.waitlist)} ${s.waitlist===1?"person":"people"} on the waitlist, ${fmt(new7)} in the last 7 days`;
+  const when=new Date(s.at);
+  $("stamp").textContent=`${source==="live"?"Updated":"Last pulled"} ${when.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZone:"America/New_York"})} ET`;
+  $("liveTag").classList.toggle("on",source==="live");
+  $("liveWord").textContent=source==="live"?"Live from Customer.io":"Snapshot";
+  const kp=[
+    ["Waitlist",fmt(s.waitlist),"All form signups",1],
+    ["New signups, 7 days",fmt(new7),prev7?`${new7>=prev7?"+":""}${Math.round((new7-prev7)/prev7*100)}% vs. prior 7 days`:"First full week",1,new7>prev7],
+    ["Main site",fmt(s.main),"heytulli.ai form",1],
+    ["CES page",fmt(s.ces),"heytulli.ai/ces form",1],
+    ["Invited","—","Needs alpha_invite_sent",0],
+    ["Activated","—","Needs app events",0],
+    ["Weekly active users","—","Needs app events",0],
+    ["Paying users",fmt(s.paying),"Billing not live",1]];
+  $("kpis").innerHTML=kp.map(k=>`<div class="kpi${k[3]?"":" off"}"><span>${k[0]}</span><strong>${esc(k[1])}</strong><em${k[4]?' class="up"':""}>${esc(k[2])}</em></div>`).join("");
+  const total=days.reduce((a,d)=>a+(Number(s.days[d])||0),0);
+  $("sigSub").textContent=`${fmt(total)} signups since the form went live on ${short(FORM_LIVE)}`;
+  const stages=[["Signed up",s.waitlist,1],["Invited",null,"alpha_invite_sent"],["Logged in",null,"first_login"],["Activated",null,"calendar_connected + first_item_created"],["Active in week 4",null,"session events"],["Paid",null,"billing"]];
+  const fr=full=>stages.map(st=>st[1]===null?`<li class="row"><b>${st[0]}</b><span class="v off">Not tracked</span><div class="bar"></div>${full?`<span class="drop">Needs ${esc(st[2])}</span>`:""}</li>`:`<li class="row"><b>${st[0]}</b><span class="v">${fmt(st[1])} · 100%</span><div class="bar"><i style="width:100%"></i></div></li>`).join("");
+  $("funMini").innerHTML=fr(false);$("funFull").innerHTML=fr(true);
+  $("funHead").textContent=`${fmt(s.waitlist)} signed up; the next five stages aren't tracked yet`;
+  const ev=[["alpha_invite_sent","When an invite email goes out"],["first_login","With platform: iOS or web"],["calendar_connected","Google or Apple"],["first_item_created","First event or task"],["caregiver_invited","Household grows"],["assistant_request","completed or stopped"],["subscription_started","App Store or Stripe"]];
+  $("events").innerHTML=ev.map(e=>`<li><span class="dot todo"></span><span><b>${e[0]}</b><small>${e[1]}</small></span></li>`).join("");
+  const pm=Math.max(1,s.main,s.ces);
+  $("pages").innerHTML=[["Main site",s.main],["CES page",s.ces]].map(p=>`<li class="row"><b>${p[0]}</b><span class="v">${fmt(p[1])}</span><div class="bar"><i class="${p[0]==="CES page"?"q":""}" style="width:${p[1]/pm*100}%"></i></div></li>`).join("")+`<li class="note">The CES page fills in once its QR codes go live for Jan 6–9.</li>`;
+  $("paying").innerHTML=`<li class="row"><b>Paying users</b><span class="v">${fmt(s.paying)}</span><div class="bar"></div><span class="drop">From the Paying Customers segment in Customer.io</span></li>`;
+  const src=[["Customer.io waitlist",source==="live"?"Connected, live":"Connected",1],["App backend events","Not sending to Customer.io yet",0],["Signup source fields and UTMs","Not on the form yet",0],["Site analytics","Not connected",0],["App Store Connect and Stripe","Waiting on billing",2]];
+  $("src").innerHTML=src.map(r=>`<li><span class="dot${r[2]===1?" ok":r[2]===0?" todo":""}"></span><span><b>${r[0]}</b><small>${r[1]}</small></span></li>`).join("");
+  drawSig();
+};
+
+const sigEl=$("sig");
+const drawSig=()=>{
+  const W=sigEl.clientWidth,H=sigEl.clientHeight;if(!W)return;
+  const days=dayRange(),rows=days.map(d=>({d,n:Number(snap.days[d])||0}));
+  const peak=Math.max(1,...rows.map(r=>r.n)),best=rows.find(r=>r.n===peak);
+  const L=8,R=8,T=24,B=28,cw=(W-L-R)/rows.length,bw=Math.max(3,Math.min(28,cw*.7));
+  const y=v=>T+(H-T-B)*(1-v/peak),step=Math.ceil(rows.length/(W<520?5:9));
+  let out=`<line x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}" stroke="var(--line)"/>`;
+  rows.forEach((r,i)=>{const x=L+i*cw+(cw-bw)/2,cx=x+bw/2,top=y(r.n),hot=r===best&&r.n>0;
+    if(r.n>0)out+=`<rect x="${x}" y="${top}" width="${bw}" height="${H-B-top}" rx="3" fill="${hot?"var(--blue)":"var(--quiet)"}"><title>${short(r.d)}: ${r.n} signups</title></rect>`;
+    if(r.n>0&&(hot||cw>22))out+=`<text x="${cx}" y="${top-6}" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">${r.n}</text>`;
+    if(i%step===0||i===rows.length-1)out+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="12" fill="var(--muted)">${short(r.d)}</text>`;});
+  sigEl.innerHTML=`<svg role="img" aria-label="Waitlist signups by day">${out}</svg>`;
+};
+const ro=new ResizeObserver(drawSig);ro.observe(sigEl);
+
+const tabs=[...document.querySelectorAll("#tabs a")];
+const show=()=>{const id=(location.hash||"#overview").slice(1);const ok=tabs.some(a=>a.hash==="#"+id)?id:"overview";
+  document.querySelectorAll("section[data-tab]").forEach(x=>x.classList.toggle("on",x.dataset.tab===ok));
+  tabs.forEach(a=>{if(a.hash==="#"+ok)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});drawSig();};
+window.addEventListener("hashchange",show);show();
+render();
+
+// ---- live data from /api/stats (server holds the Customer.io key) ----
+const btn=$("refresh"),word=$("refreshWord"),foot=$("footNote");
+let pass="";try{pass=localStorage.getItem("tulli-pass")||""}catch(e){}
+let busy=false;
+const load=async fresh=>{
+  if(busy)return;busy=true;btn.disabled=true;btn.classList.add("spin");word.textContent="Refreshing…";
+  try{
+    const r=await fetch("/api/stats"+(fresh?"?t="+Date.now():""),{headers:pass?{"x-passcode":pass}:{}});
+    if(r.status===401){busy=false;btn.disabled=false;btn.classList.remove("spin");word.textContent="Refresh";askPass();return;}
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const d=await r.json();
+    if(!d||!d.days)throw new Error("bad data");
+    snap=d;source="live";render();foot.textContent="Live from Customer.io workspace Tulli.";
+  }catch(e){foot.textContent="Couldn't reach Customer.io just now. Showing the last numbers loaded.";}
+  busy=false;btn.disabled=false;btn.classList.remove("spin");word.textContent="Refresh";
+};
+const askPass=()=>{
+  const box=document.getElementById("gate");box.hidden=false;document.getElementById("passIn").focus();
+};
+document.getElementById("gateForm").addEventListener("submit",e=>{
+  e.preventDefault();pass=document.getElementById("passIn").value.trim();
+  try{localStorage.setItem("tulli-pass",pass)}catch(_){}
+  document.getElementById("gate").hidden=true;load(true);
+});
+btn.addEventListener("click",()=>load(true));
+
+// pull down from the top to refresh
+const pill=document.createElement("div");pill.id="pull";pill.setAttribute("aria-hidden","true");pill.textContent="Pull to refresh";document.body.appendChild(pill);
+let y0=null,dy=0;
+window.addEventListener("touchstart",e=>{y0=window.scrollY<=0?e.touches[0].clientY:null;dy=0;},{passive:true});
+window.addEventListener("touchmove",e=>{if(y0===null)return;dy=e.touches[0].clientY-y0;if(dy>0){const p=Math.min(dy,120);pill.style.transform=`translate(-50%,${p-60}px)`;pill.textContent=dy>80?"Release to refresh":"Pull to refresh";}},{passive:true});
+window.addEventListener("touchend",()=>{if(y0!==null&&dy>80)load(true);y0=null;dy=0;pill.style.transform="translate(-50%,-60px)";},{passive:true});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")load(false);});
+load(false);
+}
+</script>
+</body>
+</html>
